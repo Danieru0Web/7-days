@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendário de aniversário</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0%;
+            padding: 0%;
+            background-color: rgb(246, 247, 248);
+            height: 100vh;
+        }
+
+        .fundo {
+            height: 100vh;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            columns: 3;
+        }
+
+        th,
+        td {
+            border: 1px solid #0a0a0a;
+            text-align: left;
+            padding: 8px;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        .nome {
+            color: #090808;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 20px;
+        }
+
+        .data {
+            color: #070707;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 20px;
+        }
+
+        .personaliz {
+            color: #080808;
+        }
+
+        .bord {
+            border: none;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fundo">
+        <h1 style="color: #0a0909; text-align: center;">Datas e compromisso</h1>
+
+        <form id="personForm">
+            <label for="name" class="nome">Nome:</label>
+            <input class="form-field js-field" id="name" minlength="3" maxlength="120" name="name" required pattern="([aA-zZ]+)">
+            <br>
+
+            <label for="dob" class="data">Data de Nascimento:</label>
+            <input type="date" id="dob" class="bord">
+            
+            <button type="submit" class="btn btn-success btn-md">Salvar</button>
+        </form>
+
+        <table id="personTable">
+            <thead>
+                <tr>
+                    <th class="personaliz">Nome</th>
+                    <th class="personaliz">Data de Nascimento</th>
+                    <th class="personaliz">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const form = document.getElementById('personForm');
+                const table = document.getElementById('personTable');
+                const storageKey = 'peopleData';
+                loadPeople();
+
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const dob = document.getElementById('dob').value;
+
+                    if (validateForm(name, dob)) {
+                        const person = { name, dob };
+
+                        savePerson(person);
+
+                        addPersonToTable(person);
+
+                        form.reset();
+                    } else {
+                        alert('Por favor, preencha os campos corretamente.');
+                    }
+                });
+
+                function validateForm(name, dob) {
+                    return name.length >= 3 && dob !== '';
+                }
+
+                function savePerson(person) {
+                    const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    peopleData.push(person);
+                    localStorage.setItem(storageKey, JSON.stringify(peopleData));
+                }
+
+                function loadPeople() {
+                    const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    peopleData.forEach(person => {
+                        addPersonToTable(person);
+                    });
+                }
+
+                function addPersonToTable(person) {
+                    const row = table.insertRow();
+                    ['name', 'dob'].forEach(prop => {
+                        const cell = row.insertCell();
+                        cell.textContent = prop === 'dob' ? formatDOB(person[prop]) : person[prop];
+                    });
+                    const actionsCell = row.insertCell();
+                    actionsCell.innerHTML = `<button class="btn btn-success btn-md" onclick="editPerson('${person.name}')">Editar</button><br><button class="btn btn-danger btn-md" onclick="removePerson('${person.name}')">Remover</button>`;
+                }
+
+                function formatDOB(dob) {
+                    const [year, month, day] = dob.split('-');
+                    return `${day}/${month}/${year}`;
+                }
+
+                window.editPerson = function (name) {
+                    editPerson(name);
+                };
+
+                function editPerson(name) {
+                    const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    const personToEdit = peopleData.find(person => person.name === name);
+
+                    if (personToEdit) {
+                        document.getElementById('name').value = personToEdit.name;
+                        document.getElementById('dob').value = personToEdit.dob;
+                        editingPerson = name;
+                    } else {
+                        alert('Pessoa não encontrada.');
+                    }
+                }
+
+                function updatePerson() {
+                    const newName = document.getElementById('name').value;
+                    const newDob = document.getElementById('dob').value;
+
+                    if (validateForm(newName, newDob)) {
+                        const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                        const personIndexToUpdate = peopleData.findIndex(person => person.name === editingPerson);
+
+                        if (personIndexToUpdate !== -1) {
+                            peopleData[personIndexToUpdate] = { name: newName, dob: newDob };
+                            localStorage.setItem(storageKey, JSON.stringify(peopleData));
+
+                            removePerson(editingPerson);
+                            addPersonToTable({ name: newName, dob: newDob });
+                        } else {
+                            alert('Pessoa não encontrada.');
+                        }
+
+                        form.reset();
+                        editingPerson = null;
+                    } else {
+                        alert('Por favor, preencha os campos corretamente.');
+                    }
+                }
+
+                window.removePerson = function (name) {
+                    const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    const updatedPeopleData = peopleData.filter(person => person.name !== name);
+                    localStorage.setItem(storageKey, JSON.stringify(updatedPeopleData));
+
+                    loadPeople();
+                };
+
+                function updatePersonInTable(index, newName, newDob) {
+                    table.rows[index].cells[0].innerHTML = newName;
+                    table.rows[index].cells[1].innerHTML = newDob;
+                }
+
+                window.removePerson = function (name) {
+                    const index = Array.from(table.rows).findIndex(row => row.cells[0].innerHTML === name);
+                    if (index !== -1) {
+                        table.deleteRow(index);
+                    }
+
+                    const peopleData = JSON.parse(localStorage.getItem(storageKey)) || [];
+                    const updatedPeopleData = peopleData.filter(person => person.name !== name);
+                    localStorage.setItem(storageKey, JSON.stringify(updatedPeopleData));
+                };
+            });
+        </script>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>

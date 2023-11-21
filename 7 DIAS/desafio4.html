@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script> 
+    var numeroSecreto = Math.floor(Math.random() * 11); // Números de 0 a 10
+var tentativas = 0;
+var maxTentativas = 3;
+
+while (tentativas < maxTentativas) {
+  var chute = prompt("Digite um número entre 0 e 10: ");
+
+  // Verifica se o usuário cancelou ou deixou em branco
+  if (chute === null || chute.trim() === "") {
+    alert("Jogo cancelado");
+    break;
+  }
+
+  // Converte o chute para número
+  chute = parseInt(chute);
+
+  // Verifica se o chute é um número válido
+  if (isNaN(chute) || chute < 0 || chute > 10) {
+    alert("Por favor, digite um número válido entre 0 e 10");
+    continue;
+  }
+
+  tentativas++;
+
+  if (chute === numeroSecreto) {
+    alert("Parabéns, você acertou! Tentativas utilizadas: " + tentativas);
+    break;
+  } else {
+    alert("Tente novamente. Tentativas utilizadas: " + tentativas);
+  }
+}
+
+if (tentativas === maxTentativas) {
+  alert("Suas tentativas acabaram. O número secreto era: " + numeroSecreto);
+}</script>
+    
+</body>
+</html>

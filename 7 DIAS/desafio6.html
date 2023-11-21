@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Compras</title>
+</head>
+<body>
+    <script>
+        function listaDeCompras() {
+            var categorias = {
+                frutas: [],
+                laticinios: [],
+                doces: [],
+                congelados: []
+            };
+
+            var adicionar = 'sim';
+
+            while (adicionar !== 'não') {
+                adicionar = prompt("Você deseja adicionar uma comida na lista de compras? Responda 'sim' ou 'não'.");
+                
+                while (adicionar !== 'sim' && adicionar !== 'não') {
+                    alert('Operação não reconhecida!');
+                    adicionar = prompt("Você deseja adicionar uma comida na lista de compras? Responda 'sim' ou 'não'.");
+                }
+
+                if (adicionar === 'não') {
+                    break;
+                }
+
+                var comida = prompt('Qual comida você deseja inserir?');
+                var categoria = prompt("Em qual categoria essa comida se encaixa: 'frutas', 'laticinios', 'doces' ou 'congelados'?");
+                
+                var categoriaLower = categoria.toLowerCase();
+                if (categorias.hasOwnProperty(categoriaLower)) {
+                    categorias[categoriaLower].push(comida);
+                } else {
+                    alert(`A categoria '${categoria}' não foi pré-definida.`);
+                }
+            }
+
+            // Verifica se há itens em pelo menos uma das listas
+            if (Object.values(categorias).every(lista => lista.length === 0)) {
+                alert("A lista de compras está vazia. Nenhum item para remover.");
+            } else {
+                // Mostra a lista completa
+                var listaCompleta = "Lista de compras:\n";
+                for (var categoria in categorias) {
+                    listaCompleta += `  ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}: ${categorias[categoria]}\n`;
+                }
+                alert(listaCompleta);
+
+                // Pergunta se deseja remover algum item
+                var desejaRemover = prompt("Deseja remover algum item da lista? Responda 'sim' ou 'não'.");
+                
+                while (desejaRemover !== 'sim' && desejaRemover !== 'não') {
+                    alert('Operação não reconhecida!');
+                    desejaRemover = prompt("Deseja remover algum item da lista? Responda 'sim' ou 'não'.");
+                }
+
+                if (desejaRemover === 'sim') {
+                    // Pergunta a categoria
+                    var categoriaRemover = prompt("De qual categoria você deseja remover um item: 'frutas', 'laticinios', 'doces' ou 'congelados'?");
+                    
+                    var categoriaRemoverLower = categoriaRemover.toLowerCase();
+                    // Verifica se a categoria é válida
+                    if (categorias.hasOwnProperty(categoriaRemoverLower)) {
+                        var listaCategoria = categorias[categoriaRemoverLower];
+
+                        // Verifica se a lista da categoria escolhida está vazia
+                        if (listaCategoria.length === 0) {
+                            alert(`A lista de ${categoriaRemover} está vazia. Nenhum item para remover.`);
+                        } else {
+                            // Pergunta qual item remover
+                            var itemRemover = prompt(`Digite o nome do item que deseja remover da lista de ${categoriaRemover}:\n${listaCategoria.join('\n')}`);
+
+                            // Verifica se o item está presente na lista
+                            var indexItem = listaCategoria.indexOf(itemRemover);
+                            if (indexItem !== -1) {
+                                listaCategoria.splice(indexItem, 1);
+                                alert(`"${itemRemover}" removido da lista de ${categoriaRemover}.`);
+                            } else {
+                                alert(`"${itemRemover}" não encontrado na lista de ${categoriaRemover}. Nenhum item removido.`);
+                            }
+                        }
+                    } else {
+                        alert(`A categoria '${categoriaRemover}' é inválida.`);
+                    }
+                }
+            }
+
+            // Mostra a lista final
+            var listaFinal = "Lista de compras final:\n";
+            for (var categoria in categorias) {
+                listaFinal += `  ${categoria.charAt(0).toUpperCase() + categoria.slice(1)}: ${categorias[categoria]}\n`;
+            }
+            alert(listaFinal);
+
+            // Pergunta se deseja reiniciar a operação
+            var reiniciar = prompt("Deseja reiniciar a operação? Responda 'sim' ou 'não'.");
+            if (reiniciar === 'sim') {
+                listaDeCompras();
+            }
+        }
+
+        // Inicia a operação
+        listaDeCompras();
+    </script>
+</body>
+</html>
